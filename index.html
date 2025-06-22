@@ -202,6 +202,7 @@
       border-radius: 5px;
       min-height: 50px;
       margin-top: 10px;
+      white-space: pre-wrap; /* Added to preserve whitespace and newlines */
     }
     #terminalTextarea {
       width: 100%;
@@ -584,7 +585,12 @@
         await pyodide.loadPackagesFromImports(code);
         const stdout = [];
         const stderr = [];
-        pyodide.setStdout({ batched: (s) => stdout.push(s) });
+        pyodide.setStdout({
+          batched: (s) => {
+            stdout.push(s);
+            if (!s.endsWith('\n')) stdout.push('\n'); // Ensure newline for each print statement
+          }
+        });
         pyodide.setStderr({ batched: (s) => stderr.push(s) });
         await pyodide.runPythonAsync(code);
         outputContainer.textContent = stdout.join("") || "✓ Code ran successfully!";
@@ -622,7 +628,12 @@
         await pyodide.loadPackagesFromImports(code);
         const stdout = [];
         const stderr = [];
-        pyodide.setStdout({ batched: (s) => stdout.push(s) });
+        pyodide.setStdout({
+          batched: (s) => {
+            stdout.push(s);
+            if (!s.endsWith('\n')) stdout.push('\n'); // Ensure newline for each print statement
+          }
+        });
         pyodide.setStderr({ batched: (s) => stderr.push(s) });
         await pyodide.runPythonAsync(code);
         outputEl.textContent = stdout.join("") || "✓ Code ran successfully!";

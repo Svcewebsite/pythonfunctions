@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Python Built-in Functions & Methods</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #000;
+      color: #f0f0f0;
+      font-family: 'Roboto', sans-serif;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-top: 0;
+      font-size: 2.5em;
+      text-align: center;
+      animation: colorShift 5s infinite;
+    }
+    @keyframes colorShift {
+      0% { color: #ff69b4; }
+      33% { color: #1e90ff; }
+      66% { color: #ff4500; }
+      100% { color: #ff69b4; }
+    }
+    .controls {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .search-bar {
+      width: 50%;
+      max-width: 400px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #333;
+      background: #111;
+      color: #f0f0f0;
+    }
+    .filter-btn {
+      padding: 8px 16px;
+      margin: 5px;
+      background: #444;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .filter-btn.active {
+      background: #ff69b4;
+    }
+    .section-container {
+      width: 80%;
+      max-width: 800px;
+      margin: 20px auto;
+      display: none;
+    }
+    .section-container.active {
+      display: block;
+    }
+    .section-title {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 20px;
+      text-align: center;
+      border-bottom: 2px solid #333;
+      padding-bottom: 10px;
+    }
+    .item-container {
+      margin: 10px 0;
+      padding: 15px;
+      border: 2px solid #333;
+      border-radius: 10px;
+      background: #111;
+      box-shadow: 0 0 15px rgba(138, 43, 226, 0.5);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .function-title {
+      font-size: 1.3em;
+      font-weight: 700;
+    }
+    .learn-btn, .try-btn, .terminal-btn {
+      padding: 8px 16px;
+      font-size: 1em;
+      font-weight: bold;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .learn-btn {
+      background: linear-gradient(45deg, #ff69b4, #1e90ff);
+    }
+    .try-btn {
+      background: linear-gradient(45deg, #00ff7f, #00b7eb);
+    }
+    .terminal-btn {
+      background: #e91e63;
+      margin: 20px 0;
+      animation: pulse 1.5s infinite;
+    }
+    .learn-btn:hover, .try-btn:hover, .terminal-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.8);
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: #222;
+      border-radius: 10px;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 0 30px rgba(138, 43, 226, 0.7);
+      position: relative;
+      animation: modalIn 0.5s ease-out;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(233, 30, 99, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(233, 30, 99, 0); }
+    }
+    .modal h2 {
+      margin-top: 0;
+      color: #ff69b4;
+    }
+    .modal p {
+      line-height: 1.5;
+    }
+    .code-block {
+      background: #000;
+      color: #0f0;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      margin: 15px 0;
+    }
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: transparent;
+      border: none;
+      font-size: 1.5em;
+      color: #f0f0f0;
+      cursor: pointer;
+    }
+    footer {
+      text-align: center;
+      margin: 40px 0;
+      font-size: 14px;
+      color: #ff0000;
+    }
+    .code-editor-container {
+      margin-top: 20px;
+    }
+    .CodeMirror {
+      height: 300px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .run-btn {
+      padding: 8px 16px;
+      background: #00ff7f;
+      border: none;
+      border-radius: 5px;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    .output-container {
+      background: #000;
+      color: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      min-height: 50px;
+      margin-top: 10px;
+    }
+    #terminalTextarea {
+      width: 100%;
+      height: 200px;
+      background-color: #2c2c3e;
+      color: #fff;
+      border: 1px solid #555;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      resize: vertical;
+      font-family: 'Courier New', monospace;
+    }
+    #terminalOutput {
+      background-color: #111;
+      color: #0f0;
+      padding: 15px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+      border-radius: 8px;
+      min-height: 100px;
+      border: 1px solid #444;
+    }
+    .loader {
+      display: none;
+      color: yellow;
+      font-style: italic;
+      margin-top: 10px;
+    }
+    .comment {
+      color: #888;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Comment about indentation added here -->
+  <h1>Python Built-in Functions & Methods</h1>
+  <div class="controls">
+    <input type="text" class="search-bar" placeholder="Search functions/methods..." oninput="searchFunctions()">
+    <div>
+      <button class="filter-btn active" onclick="filterDataType('all')">All</button>
+      <button class="filter-btn" onclick="filterDataType('Dictionary')">Dictionary</button>
+      <button class="filter-btn" onclick="filterDataType('List')">List</button>
+      <button class="filter-btn" onclick="filterDataType('Tuple')">Tuple</button>
+      <button class="filter-btn" onclick="filterDataType('String')">String</button>
+      <button class="filter-btn" onclick="filterDataType('Set')">Set</button>
+    </div>
+    <button class="terminal-btn" onclick="openTerminalModal()">🚀 Python Terminal</button>
+    <div class="comment">Note: Ensure proper indentation (e.g., 4 spaces) when editing code in the editors below!</div>
+  </div>
+  
+  <!-- Dictionary Section -->
+  <div class="section-container" data-type="Dictionary">
+    <div class="section-title">Dictionary</div>
+    <div class="item-container"><div class="function-title"><strong>len(dict)</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_len')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_len')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>dict()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_dict')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_dict')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>keys()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_keys')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_keys')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>values()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_values')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_values')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>items()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_items')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_items')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>get()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_get')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_get')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>update()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_update')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_update')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>clear()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_clear')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_clear')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>copy()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_copy')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_copy')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>pop()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_pop')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_pop')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>popitem()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_popitem')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_popitem')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>setdefault()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_setdefault')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_setdefault')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>fromkeys()</strong></div><div><button class="learn-btn" onclick="openModal('dictionary_fromkeys')">Want to know more</button><button class="try-btn" onclick="openCodeModal('dictionary_fromkeys')">Try It</button></div></div>
+  </div>
+  
+  <!-- List Section -->
+  <div class="section-container" data-type="List">
+    <div class="section-title">List</div>
+    <div class="item-container"><div class="function-title"><strong>len(list)</strong></div><div><button class="learn-btn" onclick="openModal('list_len')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_len')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>list()</strong></div><div><button class="learn-btn" onclick="openModal('list_list')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_list')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>append()</strong></div><div><button class="learn-btn" onclick="openModal('list_append')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_append')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>extend()</strong></div><div><button class="learn-btn" onclick="openModal('list_extend')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_extend')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>insert()</strong></div><div><button class="learn-btn" onclick="openModal('list_insert')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_insert')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>remove()</strong></div><div><button class="learn-btn" onclick="openModal('list_remove')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_remove')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>pop()</strong></div><div><button class="learn-btn" onclick="openModal('list_pop')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_pop')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>index()</strong></div><div><button class="learn-btn" onclick="openModal('list_index')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_index')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>sort()</strong></div><div><button class="learn-btn" onclick="openModal('list_sort')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_sort')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>reverse()</strong></div><div><button class="learn-btn" onclick="openModal('list_reverse')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_reverse')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>count()</strong></div><div><button class="learn-btn" onclick="openModal('list_count')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_count')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>clear()</strong></div><div><button class="learn-btn" onclick="openModal('list_clear')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_clear')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>copy()</strong></div><div><button class="learn-btn" onclick="openModal('list_copy')">Want to know more</button><button class="try-btn" onclick="openCodeModal('list_copy')">Try It</button></div></div>
+  </div>
+  
+  <!-- Tuple Section -->
+  <div class="section-container" data-type="Tuple">
+    <div class="section-title">Tuple</div>
+    <div class="item-container"><div class="function-title"><strong>len(tuple)</strong></div><div><button class="learn-btn" onclick="openModal('tuple_len')">Want to know more</button><button class="try-btn" onclick="openCodeModal('tuple_len')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>tuple()</strong></div><div><button class="learn-btn" onclick="openModal('tuple_tuple')">Want to know more</button><button class="try-btn" onclick="openCodeModal('tuple_tuple')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>count()</strong></div><div><button class="learn-btn" onclick="openModal('tuple_count')">Want to know more</button><button class="try-btn" onclick="openCodeModal('tuple_count')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>index()</strong></div><div><button class="learn-btn" onclick="openModal('tuple_index')">Want to know more</button><button class="try-btn" onclick="openCodeModal('tuple_index')">Try It</button></div></div>
+  </div>
+  
+  <!-- String Section -->
+  <div class="section-container" data-type="String">
+    <div class="section-title">String</div>
+    <div class="item-container"><div class="function-title"><strong>len(str)</strong></div><div><button class="learn-btn" onclick="openModal('string_len')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_len')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>str()</strong></div><div><button class="learn-btn" onclick="openModal('string_str')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_str')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>capitalize()</strong></div><div><button class="learn-btn" onclick="openModal('string_capitalize')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_capitalize')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>upper()</strong></div><div><button class="learn-btn" onclick="openModal('string_upper')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_upper')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>lower()</strong></div><div><button class="learn-btn" onclick="openModal('string_lower')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_lower')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>strip()</strong></div><div><button class="learn-btn" onclick="openModal('string_strip')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_strip')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>replace()</strong></div><div><button class="learn-btn" onclick="openModal('string_replace')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_replace')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>split()</strong></div><div><button class="learn-btn" onclick="openModal('string_split')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_split')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>join()</strong></div><div><button class="learn-btn" onclick="openModal('string_join')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_join')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>find()</strong></div><div><button class="learn-btn" onclick="openModal('string_find')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_find')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>index()</strong></div><div><button class="learn-btn" onclick="openModal('string_index')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_index')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>startswith()</strong></div><div><button class="learn-btn" onclick="openModal('string_startswith')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_startswith')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>endswith()</strong></div><div><button class="learn-btn" onclick="openModal('string_endswith')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_endswith')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>isalnum()</strong></div><div><button class="learn-btn" onclick="openModal('string_isalnum')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_isalnum')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>isalpha()</strong></div><div><button class="learn-btn" onclick="openModal('string_isalpha')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_isalpha')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>isdigit()</strong></div><div><button class="learn-btn" onclick="openModal('string_isdigit')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_isdigit')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>title()</strong></div><div><button class="learn-btn" onclick="openModal('string_title')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_title')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>swapcase()</strong></div><div><button class="learn-btn" onclick="openModal('string_swapcase')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_swapcase')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>count()</strong></div><div><button class="learn-btn" onclick="openModal('string_count')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_count')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>isspace()</strong></div><div><button class="learn-btn" onclick="openModal('string_isspace')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_isspace')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>isupper()</strong></div><div><button class="learn-btn" onclick="openModal('string_isupper')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_isupper')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>islower()</strong></div><div><button class="learn-btn" onclick="openModal('string_islower')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_islower')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>format()</strong></div><div><button class="learn-btn" onclick="openModal('string_format')">Want to know more</button><button class="try-btn" onclick="openCodeModal('string_format')">Try It</button></div></div>
+  </div>
+
+  <!-- General Built-in Functions Section -->
+  <div class="section-container" data-type="Built-in">
+    <div class="section-title">General Built-in Functions</div>
+    <div class="item-container"><div class="function-title"><strong>print()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_print')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_print')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>input()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_input')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_input')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>type()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_type')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_type')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>int()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_int')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_int')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>float()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_float')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_float')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>bool()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_bool')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_bool')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>min()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_min')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_min')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>max()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_max')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_max')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>sum()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_sum')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_sum')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>abs()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_abs')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_abs')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>round()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_round')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_round')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>range()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_range')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_range')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>zip()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_zip')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_zip')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>map()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_map')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_map')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>filter()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_filter')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_filter')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>sorted()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_sorted')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_sorted')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>enumerate()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_enumerate')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_enumerate')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>any()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_any')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_any')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>all()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_all')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_all')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>dir()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_dir')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_dir')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>help()</strong></div><div><button class="learn-btn" onclick="openModal('builtin_help')">Want to know more</button><button class="try-btn" onclick="openCodeModal('builtin_help')">Try It</button></div></div>
+  </div>
+  
+  <!-- Set Section -->
+  <div class="section-container" data-type="Set">
+    <div class="section-title">Set</div>
+    <div class="item-container"><div class="function-title"><strong>len(set)</strong></div><div><button class="learn-btn" onclick="openModal('set_len')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_len')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>set()</strong></div><div><button class="learn-btn" onclick="openModal('set_set')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_set')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>add()</strong></div><div><button class="learn-btn" onclick="openModal('set_add')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_add')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>update()</strong></div><div><button class="learn-btn" onclick="openModal('set_update')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_update')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>discard()</strong></div><div><button class="learn-btn" onclick="openModal('set_discard')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_discard')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>remove()</strong></div><div><button class="learn-btn" onclick="openModal('set_remove')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_remove')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>pop()</strong></div><div><button class="learn-btn" onclick="openModal('set_pop')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_pop')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>clear()</strong></div><div><button class="learn-btn" onclick="openModal('set_clear')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_clear')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>union()</strong></div><div><button class="learn-btn" onclick="openModal('set_union')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_union')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>intersection()</strong></div><div><button class="learn-btn" onclick="openModal('set_intersection')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_intersection')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>difference()</strong></div><div><button class="learn-btn" onclick="openModal('set_difference')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_difference')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>symmetric_difference()</strong></div><div><button class="learn-btn" onclick="openModal('set_symmetric_difference')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_symmetric_difference')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>isdisjoint()</strong></div><div><button class="learn-btn" onclick="openModal('set_isdisjoint')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_isdisjoint')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>issubset()</strong></div><div><button class="learn-btn" onclick="openModal('set_issubset')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_issubset')">Try It</button></div></div>
+    <div class="item-container"><div class="function-title"><strong>issuperset()</strong></div><div><button class="learn-btn" onclick="openModal('set_issuperset')">Want to know more</button><button class="try-btn" onclick="openCodeModal('set_issuperset')">Try It</button></div></div>
+  </div>
+  
+  <!-- Modal Overlays -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContent">
+      <button class="close-btn" onclick="closeModal()">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="codeModalOverlay">
+    <div class="modal" id="codeModalContent">
+      <button class="close-btn" onclick="closeCodeModal()">×</button>
+      <div id="codeModalBody"></div>
+    </div>
+  </div>
+  <div class="modal-overlay" id="terminalModalOverlay">
+    <div class="modal" id="terminalModalContent">
+      <button class="close-btn" onclick="closeTerminalModal()">×</button>
+      <div id="terminalModalBody">
+        <h2>🚀 Python Compiler</h2>
+        <textarea id="terminalTextarea">print("Hello, welcome to the Python Terminal!")</textarea><br>
+        <button class="run-btn" onclick="runPython()">▶ Run Python Code</button>
+        <div class="loader" id="terminalLoader">Running...</div>
+        <div id="terminalOutput"></div>
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    CREATED WITH PASSION BY NANDA KISHORE SREEJITH SBNG CSE.
+  </footer>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script>
+    const modalExamples = {
+      // Dictionary
+      dictionary_len: { title: "len(dict)", content: "<strong>Objective:</strong> Get number of items.<br><strong>Code:</strong><br>d = {'a': 1, 'b': 2}<br>print(len(d))<br><strong>Output:</strong> 2", code: "d = {'a': 1, 'b': 2}\nprint(len(d))" },
+      dictionary_dict: { title: "dict()", content: "<strong>Objective:</strong> Create a dictionary.<br><strong>Code:</strong><br>d = dict(a=1, b=2)<br>print(d)<br><strong>Output:</strong> {'a': 1, 'b': 2}", code: "d = dict(a=1, b=2)\nprint(d)" },
+      dictionary_keys: { title: "keys()", content: "<strong>Objective:</strong> Get all keys.<br><strong>Code:</strong><br>d = {'a': 1, 'b': 2}<br>print(list(d.keys()))<br><strong>Output:</strong> ['a', 'b']", code: "d = {'a': 1, 'b': 2}\nprint(list(d.keys()))" },
+      dictionary_values: { title: "values()", content: "<strong>Objective:</strong> Get all values.<br><strong>Code:</strong><br>d = {'a': 1, 'b': 2}<br>print(list(d.values()))<br><strong>Output:</strong> [1, 2]", code: "d = {'a': 1, 'b': 2}\nprint(list(d.values()))" },
+      dictionary_items: { title: "items()", content: "<strong>Objective:</strong> Get key-value pairs.<br><strong>Code:</strong><br>d = {'a': 1, 'b': 2}<br>print(list(d.items()))<br><strong>Output:</strong> [('a', 1), ('b', 2)]", code: "d = {'a': 1, 'b': 2}\nprint(list(d.items()))" },
+      dictionary_get: { title: "get()", content: "<strong>Objective:</strong> Get value with default.<br><strong>Code:</strong><br>d = {'a': 1}<br>print(d.get('b', 0))<br><strong>Output:</strong> 0", code: "d = {'a': 1}\nprint(d.get('b', 0))" },
+      dictionary_update: { title: "update()", content: "<strong>Objective:</strong> Update dictionary.<br><strong>Code:</strong><br>d = {'a': 1}<br>d.update({'b': 2})<br>print(d)<br><strong>Output:</strong> {'a': 1, 'b': 2}", code: "d = {'a': 1}\nd.update({'b': 2})\nprint(d)" },
+      dictionary_clear: { title: "clear()", content: "<strong>Objective:</strong> Remove all items.<br><strong>Code:</strong><br>d = {'a': 1}<br>d.clear()<br>print(d)<br><strong>Output:</strong> {}", code: "d = {'a': 1}\nd.clear()\nprint(d)" },
+      dictionary_copy: { title: "copy()", content: "<strong>Objective:</strong> Shallow copy.<br><strong>Code:</strong><br>d = {'a': 1}<br>d2 = d.copy()<br>print(d2)<br><strong>Output:</strong> {'a': 1}", code: "d = {'a': 1}\nd2 = d.copy()\nprint(d2)" },
+      dictionary_pop: { title: "pop()", content: "<strong>Objective:</strong> Remove key, return value.<br><strong>Code:</strong><br>d = {'a': 1}<br>print(d.pop('a'))<br><strong>Output:</strong> 1", code: "d = {'a': 1}\nprint(d.pop('a'))" },
+      dictionary_popitem: { title: "popitem()", content: "<strong>Objective:</strong> Remove last item.<br><strong>Code:</strong><br>d = {'a': 1, 'b': 2}<br>print(d.popitem())<br><strong>Output:</strong> ('b', 2)", code: "d = {'a': 1, 'b': 2}\nprint(d.popitem())" },
+      dictionary_setdefault: { title: "setdefault()", content: "<strong>Objective:</strong> Get or set default.<br><strong>Code:</strong><br>d = {'a': 1}<br>print(d.setdefault('b', 2))<br>print(d)<br><strong>Output:</strong> 2<br>{'a': 1, 'b': 2}", code: "d = {'a': 1}\nprint(d.setdefault('b', 2))\nprint(d)" },
+      dictionary_fromkeys: { title: "fromkeys()", content: "<strong>Objective:</strong> Create from keys.<br><strong>Code:</strong><br>d = dict.fromkeys(['a', 'b'], 0)<br>print(d)<br><strong>Output:</strong> {'a': 0, 'b': 0}", code: "d = dict.fromkeys(['a', 'b'], 0)\nprint(d)" },
+      // List
+      list_len: { title: "len(list)", content: "<strong>Objective:</strong> Get length.<br><strong>Code:</strong><br>lst = [1, 2, 3]<br>print(len(lst))<br><strong>Output:</strong> 3", code: "lst = [1, 2, 3]\nprint(len(lst))" },
+      list_list: { title: "list()", content: "<strong>Objective:</strong> Create list.<br><strong>Code:</strong><br>lst = list((1, 2, 3))<br>print(lst)<br><strong>Output:</strong> [1, 2, 3]", code: "lst = list((1, 2, 3))\nprint(lst)" },
+      list_append: { title: "append()", content: "<strong>Objective:</strong> Add element.<br><strong>Code:</strong><br>lst = [1, 2]<br>lst.append(3)<br>print(lst)<br><strong>Output:</strong> [1, 2, 3]", code: "lst = [1, 2]\nlst.append(3)\nprint(lst)" },
+      list_extend: { title: "extend()", content: "<strong>Objective:</strong> Extend list.<br><strong>Code:</strong><br>lst = [1, 2]<br>lst.extend([3, 4])<br>print(lst)<br><strong>Output:</strong> [1, 2, 3, 4]", code: "lst = [1, 2]\nlst.extend([3, 4])\nprint(lst)" },
+      list_insert: { title: "insert()", content: "<strong>Objective:</strong> Insert at index.<br><strong>Code:</strong><br>lst = [1, 3]<br>lst.insert(1, 2)<br>print(lst)<br><strong>Output:</strong> [1, 2, 3]", code: "lst = [1, 3]\nlst.insert(1, 2)\nprint(lst)" },
+      list_remove: { title: "remove()", content: "<strong>Objective:</strong> Remove first occurrence.<br><strong>Code:</strong><br>lst = [1, 2, 2]<br>lst.remove(2)<br>print(lst)<br><strong>Output:</strong> [1, 2]", code: "lst = [1, 2, 2]\nlst.remove(2)\nprint(lst)" },
+      list_pop: { title: "pop()", content: "<strong>Objective:</strong> Remove and return item.<br><strong>Code:</strong><br>lst = [1, 2, 3]<br>print(lst.pop())<br><strong>Output:</strong> 3", code: "lst = [1, 2, 3]\nprint(lst.pop())" },
+      list_index: { title: "index()", content: "<strong>Objective:</strong> Find index of first occurrence.<br><strong>Code:</strong><br>lst = [1, 2, 3]<br>print(lst.index(2))<br><strong>Output:</strong> 1", code: "lst = [1, 2, 3]\nprint(lst.index(2))" },
+      list_sort: { title: "sort()", content: "<strong>Objective:</strong> Sort list.<br><strong>Code:</strong><br>lst = [3, 1, 2]<br>lst.sort()<br>print(lst)<br><strong>Output:</strong> [1, 2, 3]", code: "lst = [3, 1, 2]\nlst.sort()\nprint(lst)" },
+      list_reverse: { title: "reverse()", content: "<strong>Objective:</strong> Reverse list.<br><strong>Code:</strong><br>lst = [1, 2, 3]<br>lst.reverse()<br>print(lst)<br><strong>Output:</strong> [3, 2, 1]", code: "lst = [1, 2, 3]\nlst.reverse()\nprint(lst)" },
+      list_count: { title: "count()", content: "<strong>Objective:</strong> Count occurrences.<br><strong>Code:</strong><br>lst = [1, 2, 2]<br>print(lst.count(2))<br><strong>Output:</strong> 2", code: "lst = [1, 2, 2]\nprint(lst.count(2))" },
+      list_clear: { title: "clear()", content: "<strong>Objective:</strong> Clear list.<br><strong>Code:</strong><br>lst = [1, 2, 3]<br>lst.clear()<br>print(lst)<br><strong>Output:</strong> []", code: "lst = [1, 2, 3]\nlst.clear()\nprint(lst)" },
+      list_copy: { title: "copy()", content: "<strong>Objective:</strong> Shallow copy.<br><strong>Code:</strong><br>lst = [1, 2, 3]<br>lst2 = lst.copy()<br>print(lst2)<br><strong>Output:</strong> [1, 2, 3]", code: "lst = [1, 2, 3]\nlst2 = lst.copy()\nprint(lst2)" },
+      // Tuple
+      tuple_len: { title: "len(tuple)", content: "<strong>Objective:</strong> Get length.<br><strong>Code:</strong><br>t = (1, 2, 3)<br>print(len(t))<br><strong>Output:</strong> 3", code: "t = (1, 2, 3)\nprint(len(t))" },
+      tuple_tuple: { title: "tuple()", content: "<strong>Objective:</strong> Create tuple.<br><strong>Code:</strong><br>t = tuple([1, 2, 3])<br>print(t)<br><strong>Output:</strong> (1, 2, 3)", code: "t = tuple([1, 2, 3])\nprint(t)" },
+      tuple_count: { title: "count()", content: "<strong>Objective:</strong> Count occurrences.<br><strong>Code:</strong><br>t = (1, 2, 2)<br>print(t.count(2))<br><strong>Output:</strong> 2", code: "t = (1, 2, 2)\nprint(t.count(2))" },
+      tuple_index: { title: "index()", content: "<strong>Objective:</strong> Find index.<br><strong>Code:</strong><br>t = (1, 2, 3)<br>print(t.index(2))<br><strong>Output:</strong> 1", code: "t = (1, 2, 3)\nprint(t.index(2))" },
+      // String
+      string_len: { title: "len(str)", content: "<strong>Objective:</strong> Get length.<br><strong>Code:</strong><br>s = 'hello'<br>print(len(s))<br><strong>Output:</strong> 5", code: "s = 'hello'\nprint(len(s))" },
+      string_str: { title: "str()", content: "<strong>Objective:</strong> Convert to string.<br><strong>Code:</strong><br>n = 123<br>print(str(n))<br><strong>Output:</strong> '123'", code: "n = 123\nprint(str(n))" },
+      string_capitalize: { title: "capitalize()", content: "<strong>Objective:</strong> Capitalize first.<br><strong>Code:</strong><br>s = 'hello'<br>print(s.capitalize())<br><strong>Output:</strong> 'Hello'", code: "s = 'hello'\nprint(s.capitalize())" },
+      string_upper: { title: "upper()", content: "<strong>Objective:</strong> All uppercase.<br><strong>Code:</strong><br>s = 'hello'<br>print(s.upper())<br><strong>Output:</strong> 'HELLO'", code: "s = 'hello'\nprint(s.upper())" },
+      string_lower: { title: "lower()", content: "<strong>Objective:</strong> All lowercase.<br><strong>Code:</strong><br>s = 'HELLO'<br>print(s.lower())<br><strong>Output:</strong> 'hello'", code: "s = 'HELLO'\nprint(s.lower())" },
+      string_strip: { title: "strip()", content: "<strong>Objective:</strong> Remove whitespace.<br><strong>Code:</strong><br>s = '  hello  '<br>print(s.strip())<br><strong>Output:</strong> 'hello'", code: "s = '  hello  '\nprint(s.strip())" },
+      string_replace: { title: "replace()", content: "<strong>Objective:</strong> Replace substring.<br><strong>Code:</strong><br>s = 'hello world'<br>print(s.replace('world', 'python'))<br><strong>Output:</strong> 'hello python'", code: "s = 'hello world'\nprint(s.replace('world', 'python'))" },
+      string_split: { title: "split()", content: "<strong>Objective:</strong> Split string.<br><strong>Code:</strong><br>s = 'a,b,c'<br>print(s.split(','))<br><strong>Output:</strong> ['a', 'b', 'c']", code: "s = 'a,b,c'\nprint(s.split(','))" },
+      string_join: { title: "join()", content: "<strong>Objective:</strong> Join list.<br><strong>Code:</strong><br>lst = ['a', 'b', 'c']<br>print('-'.join(lst))<br><strong>Output:</strong> 'a-b-c'", code: "lst = ['a', 'b', 'c']\nprint('-'.join(lst))" },
+      string_find: { title: "find()", content: "<strong>Objective:</strong> Find substring.<br><strong>Code:</strong><br>s = 'hello'<br>print(s.find('l'))<br><strong>Output:</strong> 2", code: "s = 'hello'\nprint(s.find('l'))" },
+      string_index: { title: "index()", content: "<strong>Objective:</strong> Get index.<br><strong>Code:</strong><br>s = 'hello'<br>print(s.index('l'))<br><strong>Output:</strong> 2", code: "s = 'hello'\nprint(s.index('l'))" },
+      string_startswith: { title: "startswith()", content: "<strong>Objective:</strong> Check start.<br><strong>Code:</strong><br>s = 'hello'<br>print(s.startswith('he'))<br><strong>Output:</strong> True", code: "s = 'hello'\nprint(s.startswith('he'))" },
+      string_endswith: { title: "endswith()", content: "<strong>Objective:</strong> Check end.<br><strong>Code:</strong><br>s = 'hello'<br>print(s.endswith('lo'))<br><strong>Output:</strong> True", code: "s = 'hello'\nprint(s.endswith('lo'))" },
+      string_isalnum: { title: "isalnum()", content: "<strong>Objective:</strong> Check alphanumeric.<br><strong>Code:</strong><br>s = 'hello123'<br>print(s.isalnum())<br><strong>Output:</strong> True", code: "s = 'hello123'\nprint(s.isalnum())" },
+      string_isalpha: { title: "isalpha()", content: "<strong>Objective:</strong> Check alphabetic.<br><strong>Code:</strong><br>s = 'hello'<br>print(s.isalpha())<br><strong>Output:</strong> True", code: "s = 'hello'\nprint(s.isalpha())" },
+      string_isdigit: { title: "isdigit()", content: "<strong>Objective:</strong> Check digits.<br><strong>Code:</strong><br>s = '123'<br>print(s.isdigit())<br><strong>Output:</strong> True", code: "s = '123'\nprint(s.isdigit())" },
+      string_title: { title: "title()", content: "<strong>Objective:</strong> Capitalize words.<br><strong>Code:</strong><br>s = 'hello world'<br>print(s.title())<br><strong>Output:</strong> 'Hello World'", code: "s = 'hello world'\nprint(s.title())" },
+      string_swapcase: { title: "swapcase()", content: "<strong>Objective:</strong> Swap case.<br><strong>Code:</strong><br>s = 'Hello'<br>print(s.swapcase())<br><strong>Output:</strong> 'hELLO'", code: "s = 'Hello'\nprint(s.swapcase())" },
+      string_count: { title: "count()", content: "<strong>Objective:</strong> Count occurrences of substring.<br><strong>Code:</strong><br>s = 'hello world hello'<br>print(s.count('hello'))<br><strong>Output:</strong> 2", code: "s = 'hello world hello'\nprint(s.count('hello'))" },
+      string_isspace: { title: "isspace()", content: "<strong>Objective:</strong> Check if all chars are whitespace.<br><strong>Code:</strong><br>s = '   '<br>print(s.isspace())<br><strong>Output:</strong> True", code: "s = '   '\nprint(s.isspace())" },
+      string_isupper: { title: "isupper()", content: "<strong>Objective:</strong> Check if all cased chars are uppercase.<br><strong>Code:</strong><br>s = 'HELLO'<br>print(s.isupper())<br><strong>Output:</strong> True", code: "s = 'HELLO'\nprint(s.isupper())" },
+      string_islower: { title: "islower()", content: "<strong>Objective:</strong> Check if all cased chars are lowercase.<br><strong>Code:</strong><br>s = 'hello'<br>print(s.islower())<br><strong>Output:</strong> True", code: "s = 'hello'\nprint(s.islower())" },
+      string_format: { title: "format()", content: "<strong>Objective:</strong> Format string.<br><strong>Code:</strong><br>name = 'Alice'<br>age = 30<br>print('My name is {} and I am {} years old.'.format(name, age))<br><strong>Output:</strong> 'My name is Alice and I am 30 years old.'", code: "name = 'Alice'\nage = 30\nprint('My name is {} and I am {} years old.'.format(name, age))" },
+      // General Built-in Functions
+      builtin_print: { title: "print()", content: "<strong>Objective:</strong> Display output.<br><strong>Code:</strong><br>print('Hello, Python!')<br><strong>Output:</strong> Hello, Python!", code: "print('Hello, Python!')" },
+      builtin_input: { title: "input()", content: "<strong>Objective:</strong> Get user input.<br><strong>Code:</strong><br>name = input('Enter your name: ')<br>print('Hello, ' + name)<br><strong>Output:</strong> (prompts for input)", code: "name = input('Enter your name: ')\nprint('Hello, ' + name)" },
+      builtin_type: { title: "type()", content: "<strong>Objective:</strong> Get type of object.<br><strong>Code:</strong><br>x = 10<br>print(type(x))<br><strong>Output:</strong> <class 'int'>", code: "x = 10\nprint(type(x))" },
+      builtin_int: { title: "int()", content: "<strong>Objective:</strong> Convert to integer.<br><strong>Code:</strong><br>s = '123'<br>print(int(s) + 1)<br><strong>Output:</strong> 124", code: "s = '123'\nprint(int(s) + 1)" },
+      builtin_float: { title: "float()", content: "<strong>Objective:</strong> Convert to float.<br><strong>Code:</strong><br>s = '3.14'<br>print(float(s) * 2)<br><strong>Output:</strong> 6.28", code: "s = '3.14'\nprint(float(s) * 2)" },
+      builtin_bool: { title: "bool()", content: "<strong>Objective:</strong> Convert to boolean.<br><strong>Code:</strong><br>print(bool(0))<br>print(bool('hello'))<br><strong>Output:</strong><br>False<br>True", code: "print(bool(0))\nprint(bool('hello'))" },
+      builtin_min: { title: "min()", content: "<strong>Objective:</strong> Get minimum item.<br><strong>Code:</strong><br>numbers = [3, 1, 4]<br>print(min(numbers))<br><strong>Output:</strong> 1", code: "numbers = [3, 1, 4]\nprint(min(numbers))" },
+      builtin_max: { title: "max()", content: "<strong>Objective:</strong> Get maximum item.<br><strong>Code:</strong><br>numbers = [3, 1, 4]<br>print(max(numbers))<br><strong>Output:</strong> 4", code: "numbers = [3, 1, 4]\nprint(max(numbers))" },
+      builtin_sum: { title: "sum()", content: "<strong>Objective:</strong> Sum items.<br><strong>Code:</strong><br>numbers = [1, 2, 3]<br>print(sum(numbers))<br><strong>Output:</strong> 6", code: "numbers = [1, 2, 3]\nprint(sum(numbers))" },
+      builtin_abs: { title: "abs()", content: "<strong>Objective:</strong> Get absolute value.<br><strong>Code:</strong><br>print(abs(-5))<br><strong>Output:</strong> 5", code: "print(abs(-5))" },
+      builtin_round: { title: "round()", content: "<strong>Objective:</strong> Round to nearest integer.<br><strong>Code:</strong><br>print(round(3.7))<br><strong>Output:</strong> 4", code: "print(round(3.7))" },
+      builtin_range: { title: "range()", content: "<strong>Objective:</strong> Generate sequence of numbers.<br><strong>Code:</strong><br>for i in range(3):<br>&nbsp;&nbsp;&nbsp;&nbsp;print(i)<br><strong>Output:</strong><br>0<br>1<br>2", code: "for i in range(3):\n    print(i)" },
+      builtin_zip: { title: "zip()", content: "<strong>Objective:</strong> Combine iterables.<br><strong>Code:</strong><br>names = ['Alice', 'Bob']<br>ages = [25, 30]<br>for name, age in zip(names, ages):<br>&nbsp;&nbsp;&nbsp;&nbsp;print(f'{name} is {age}')<br><strong>Output:</strong><br>Alice is 25<br>Bob is 30", code: "names = ['Alice', 'Bob']\nages = [25, 30]\nfor name, age in zip(names, ages):\n    print(f'{name} is {age}')" },
+      builtin_map: { title: "map()", content: "<strong>Objective:</strong> Apply function to items.<br><strong>Code:</strong><br>numbers = [1, 2, 3]<br>squared = list(map(lambda x: x*x, numbers))<br>print(squared)<br><strong>Output:</strong> [1, 4, 9]", code: "numbers = [1, 2, 3]\nsquared = list(map(lambda x: x*x, numbers))\nprint(squared)" },
+      builtin_filter: { title: "filter()", content: "<strong>Objective:</strong> Filter items.<br><strong>Code:</strong><br>numbers = [1, 2, 3, 4]<br>even = list(filter(lambda x: x % 2 == 0, numbers))<br>print(even)<br><strong>Output:</strong> [2, 4]", code: "numbers = [1, 2, 3, 4]\neven = list(filter(lambda x: x % 2 == 0, numbers))\nprint(even)" },
+      builtin_sorted: { title: "sorted()", content: "<strong>Objective:</strong> Return new sorted list.<br><strong>Code:</strong><br>numbers = [3, 1, 2]<br>print(sorted(numbers))<br><strong>Output:</strong> [1, 2, 3]", code: "numbers = [3, 1, 2]\nprint(sorted(numbers))" },
+      builtin_enumerate: { title: "enumerate()", content: "<strong>Objective:</strong> Get index and value.<br><strong>Code:</strong><br>fruits = ['apple', 'banana']<br>for i, fruit in enumerate(fruits):<br>&nbsp;&nbsp;&nbsp;&nbsp;print(f'{i}: {fruit}')<br><strong>Output:</strong><br>0: apple<br>1: banana", code: "fruits = ['apple', 'banana']\nfor i, fruit in enumerate(fruits):\n    print(f'{i}: {fruit}')" },
+      builtin_any: { title: "any()", content: "<strong>Objective:</strong> Check if any element is true.<br><strong>Code:</strong><br>print(any([False, True, False]))<br><strong>Output:</strong> True", code: "print(any([False, True, False]))" },
+      builtin_all: { title: "all()", content: "<strong>Objective:</strong> Check if all elements are true.<br><strong>Code:</strong><br>print(all([True, True, False]))<br><strong>Output:</strong> False", code: "print(all([True, True, False]))" },
+      builtin_dir: { title: "dir()", content: "<strong>Objective:</strong> List attributes of object.<br><strong>Code:</strong><br>print(dir([]))<br><strong>Output:</strong> (list of list methods)", code: "print(dir([]))" },
+      builtin_help: { title: "help()", content: "<strong>Objective:</strong> Get help on object.<br><strong>Code:</strong><br># This will open a help page in the terminal<br># help(str)<br>print('Run help(str) in the terminal for details.')<br><strong>Output:</strong> (help text for str)", code: "# This will open a help page in the terminal\n# help(str)\nprint('Run help(str) in the terminal for details.')" },
+      // Set
+      set_len: { title: "len(set)", content: "<strong>Objective:</strong> Get size.<br><strong>Code:</strong><br>s = {1, 2, 3}<br>print(len(s))<br><strong>Output:</strong> 3", code: "s = {1, 2, 3}\nprint(len(s))" },
+      set_set: { title: "set()", content: "<strong>Objective:</strong> Create set.<br><strong>Code:</strong><br>s = set([1, 2, 2])<br>print(s)<br><strong>Output:</strong> {1, 2}", code: "s = set([1, 2, 2])\nprint(s)" },
+      set_add: { title: "add()", content: "<strong>Objective:</strong> Add element.<br><strong>Code:</strong><br>s = {1, 2}<br>s.add(3)<br>print(s)<br><strong>Output:</strong> {1, 2, 3}", code: "s = {1, 2}\ns.add(3)\nprint(s)" },
+      set_update: { title: "update()", content: "<strong>Objective:</strong> Add elements.<br><strong>Code:</strong><br>s = {1, 2}<br>s.update([3, 4])<br>print(s)<br><strong>Output:</strong> {1, 2, 3, 4}", code: "s = {1, 2}\ns.update([3, 4])\nprint(s)" },
+      set_discard: { title: "discard()", content: "<strong>Objective:</strong> Remove if present.<br><strong>Code:</strong><br>s = {1, 2}<br>s.discard(2)<br>print(s)<br><strong>Output:</strong> {1}", code: "s = {1, 2}\ns.discard(2)\nprint(s)" },
+      set_remove: { title: "remove()", content: "<strong>Objective:</strong> Remove element.<br><strong>Code:</strong><br>s = {1, 2}<br>s.remove(2)<br>print(s)<br><strong>Output:</strong> {1}", code: "s = {1, 2}\ns.remove(2)\nprint(s)" },
+      set_pop: { title: "pop()", content: "<strong>Objective:</strong> Remove random element.<br><strong>Code:</strong><br>s = {1, 2, 3}<br>print(s.pop())<br><strong>Output:</strong> (random element)", code: "s = {1, 2, 3}\nprint(s.pop())" },
+      set_clear: { title: "clear()", content: "<strong>Objective:</strong> Clear set.<br><strong>Code:</strong><br>s = {1, 2, 3}<br>s.clear()<br>print(s)<br><strong>Output:</strong> set()", code: "s = {1, 2, 3}\ns.clear()\nprint(s)" },
+      set_union: { title: "union()", content: "<strong>Objective:</strong> Combine sets.<br><strong>Code:</strong><br>s1 = {1, 2}<br>s2 = {2, 3}<br>print(s1.union(s2))<br><strong>Output:</strong> {1, 2, 3}", code: "s1 = {1, 2}\ns2 = {2, 3}\nprint(s1.union(s2))" },
+      set_intersection: { title: "intersection()", content: "<strong>Objective:</strong> Common elements.<br><strong>Code:</strong><br>s1 = {1, 2}<br>s2 = {2, 3}<br>print(s1.intersection(s2))<br><strong>Output:</strong> {2}", code: "s1 = {1, 2}\ns2 = {2, 3}\nprint(s1.intersection(s2))" },
+      set_difference: { title: "difference()", content: "<strong>Objective:</strong> Unique elements.<br><strong>Code:</strong><br>s1 = {1, 2}<br>s2 = {2, 3}<br>print(s1.difference(s2))<br><strong>Output:</strong> {1}", code: "s1 = {1, 2}\ns2 = {2, 3}\nprint(s1.difference(s2))" },
+      set_symmetric_difference: { title: "symmetric_difference()", content: "<strong>Objective:</strong> Non-common elements.<br><strong>Code:</strong><br>s1 = {1, 2}<br>s2 = {2, 3}<br>print(s1.symmetric_difference(s2))<br><strong>Output:</strong> {1, 3}", code: "s1 = {1, 2}\ns2 = {2, 3}\nprint(s1.symmetric_difference(s2))" },
+      set_isdisjoint: { title: "isdisjoint()", content: "<strong>Objective:</strong> Check no overlap.<br><strong>Code:</strong><br>s1 = {1, 2}<br>s2 = {3, 4}<br>print(s1.isdisjoint(s2))<br><strong>Output:</strong> True", code: "s1 = {1, 2}\ns2 = {3, 4}\nprint(s1.isdisjoint(s2))" },
+      set_issubset: { title: "issubset()", content: "<strong>Objective:</strong> Check subset.<br><strong>Code:</strong><br>s1 = {1, 2}<br>s2 = {1, 2, 3}<br>print(s1.issubset(s2))<br><strong>Output:</strong> True", code: "s1 = {1, 2}\ns2 = {1, 2, 3}\nprint(s1.issubset(s2))" },
+      set_issuperset: { title: "issuperset()", content: "<strong>Objective:</strong> Check superset.<br><strong>Code:</strong><br>s1 = {1, 2, 3}<br>s2 = {1, 2}<br>print(s1.issuperset(s2))<br><strong>Output:</strong> True", code: "s1 = {1, 2, 3}\ns2 = {1, 2}\nprint(s1.issuperset(s2))" }
+    };
+
+    let editor;
+    let pyodideReady = false;
+    let pyodide;
+
+    async function loadPyodideAndPackages() {
+      document.getElementById("terminalLoader").style.display = "block";
+      pyodide = await loadPyodide();
+      pyodideReady = true;
+      document.getElementById("terminalLoader").style.display = "none";
+    }
+
+    function openModal(exampleKey) {
+      const modalOverlay = document.getElementById("modalOverlay");
+      const modalBody = document.getElementById("modalBody");
+      if (modalExamples[exampleKey]) {
+        modalBody.innerHTML = `
+          <h2>${modalExamples[exampleKey].title}</h2>
+          <p>${modalExamples[exampleKey].content}</p>
+        `;
+      } else {
+        modalBody.innerHTML = "<p>No example available.</p>";
+      }
+      modalOverlay.style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("modalOverlay").style.display = "none";
+    }
+
+    function openCodeModal(exampleKey) {
+      const modalOverlay = document.getElementById("codeModalOverlay");
+      const modalBody = document.getElementById("codeModalBody");
+      const example = modalExamples[exampleKey] || { title: "Code Editor", code: "# No code available" };
+      modalBody.innerHTML = `
+        <h2>${example.title}</h2>
+        <div class="code-editor-container">
+          <textarea id="codeEditor">${example.code || ''}</textarea>
+          <button class="run-btn" onclick="runCode()">Run Code</button>
+          <div class="loader" id="codeLoader">Running...</div>
+          <div class="output-container" id="codeOutput">Output will appear here</div>
+        </div>
+      `;
+      modalOverlay.style.display = "flex";
+      editor = CodeMirror.fromTextArea(document.getElementById("codeEditor"), {
+        mode: "python",
+        theme: "dracula",
+        lineNumbers: true,
+        tabSize: 4
+      });
+      if (!pyodideReady) {
+        loadPyodideAndPackages();
+      }
+    }
+
+    function closeCodeModal() {
+      document.getElementById("codeModalOverlay").style.display = "none";
+      if (editor) {
+        editor.toTextArea();
+        editor = null;
+      }
+    }
+
+    async function runCode() {
+      const code = editor.getValue();
+      const outputContainer = document.getElementById("codeOutput");
+      const codeLoader = document.getElementById("codeLoader");
+      outputContainer.textContent = "";
+      codeLoader.style.display = "block";
+
+      if (!pyodideReady) {
+        outputContainer.textContent = "Pyodide is still loading...";
+        codeLoader.style.display = "none";
+        return;
+      }
+
+      try {
+        await pyodide.loadPackagesFromImports(code);
+        const stdout = [];
+        const stderr = [];
+        pyodide.setStdout({ batched: (s) => stdout.push(s) });
+        pyodide.setStderr({ batched: (s) => stderr.push(s) });
+        await pyodide.runPythonAsync(code);
+        outputContainer.textContent = stdout.join("") || "✓ Code ran successfully!";
+        if (stderr.length) {
+          outputContainer.textContent += "\nError:\n" + stderr.join("");
+        }
+      } catch (error) {
+        outputContainer.textContent = "Error: " + error.message;
+      }
+      codeLoader.style.display = "none";
+    }
+
+    function openTerminalModal() {
+      const modalOverlay = document.getElementById("terminalModalOverlay");
+      modalOverlay.style.display = "flex";
+      if (!pyodideReady) {
+        loadPyodideAndPackages();
+      }
+    }
+
+    function closeTerminalModal() {
+      document.getElementById("terminalModalOverlay").style.display = "none";
+    }
+
+    async function runPython() {
+      const code = document.getElementById("terminalTextarea").value;
+      const outputEl = document.getElementById("terminalOutput");
+      outputEl.textContent = "";
+      document.getElementById("terminalLoader").style.display = "block";
+      if (!pyodideReady) {
+        outputEl.textContent = "Pyodide is still loading...";
+        return;
+      }
+      try {
+        await pyodide.loadPackagesFromImports(code);
+        const stdout = [];
+        const stderr = [];
+        pyodide.setStdout({ batched: (s) => stdout.push(s) });
+        pyodide.setStderr({ batched: (s) => stderr.push(s) });
+        await pyodide.runPythonAsync(code);
+        outputEl.textContent = stdout.join("") || "✓ Code ran successfully!";
+        if (stderr.length) {
+          outputEl.textContent += "\nError:\n" + stderr.join("");
+        }
+      } catch (err) {
+        outputEl.textContent = "Error:\n" + err;
+      }
+      document.getElementById("terminalLoader").style.display = "none";
+    }
+
+    function filterDataType(type) {
+      const sections = document.querySelectorAll(".section-container");
+      const buttons = document.querySelectorAll(".filter-btn");
+      sections.forEach(section => {
+        if (type === "all" || section.dataset.type === type) {
+          section.classList.add("active");
+        } else {
+          section.classList.remove("active");
+        }
+      });
+      buttons.forEach(btn => {
+        btn.classList.remove("active");
+        if (btn.textContent === type || (type === "all" && btn.textContent === "All")) {
+          btn.classList.add("active");
+        }
+      });
+      searchFunctions();
+    }
+
+    function searchFunctions() {
+      const query = document.querySelector(".search-bar").value.toLowerCase();
+      const items = document.querySelectorAll(".item-container");
+      items.forEach(item => {
+        const title = item.querySelector(".function-title").textContent.toLowerCase();
+        const section = item.closest(".section-container");
+        if (title.includes(query) && section.classList.contains("active")) {
+          item.style.display = "flex";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    }
+
+    window.onclick = function(event) {
+      const modalOverlay = document.getElementById("modalOverlay");
+      const codeModalOverlay = document.getElementById("codeModalOverlay");
+      const terminalModalOverlay = document.getElementById("terminalModalOverlay");
+      if (event.target === modalOverlay) closeModal();
+      if (event.target === codeModalOverlay) closeCodeModal();
+      if (event.target === terminalModalOverlay) closeTerminalModal();
+    }
+
+    filterDataType("all");
+  </script>
+</body>
+</html>
